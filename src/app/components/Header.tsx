@@ -18,11 +18,16 @@ const Header = () => {
 
         {/* Navegação principal */}
         <nav className="hidden md:flex gap-6 items-center">
-          <Link href="#hero" className="hover:text-gray-300">Início</Link>
-          <Link href="#skills" className="hover:text-gray-300">Habilidades</Link>
-          <Link href="#projects" className="hover:text-gray-300">Projetos</Link>
-          <Link href="#contact" className="hover:text-gray-300">Contato</Link>
-          <Link href="/portfolios" className="hover:text-gray-300">Portfólios</Link>
+          <Link href="/#hero" className="hover:text-gray-300">
+            Início
+          </Link>
+          <Link href="/#about" className="hover:text-gray-300">
+            Sobre
+          </Link>
+          {/* Link para rolar até a seção de cards na página /portfolios */}
+          <Link href="/portfolios#cards" className="hover:text-gray-300">
+            Portfólios
+          </Link>
         </nav>
 
         {/* Ícone de login */}
@@ -30,7 +35,7 @@ const Header = () => {
           <LogIn className="w-6 h-6" />
         </Link>
 
-        {/* Menu mobile (não funcional aqui, só placeholder) */}
+        {/* Menu mobile (a ser implementado) */}
         <button
           className="block md:hidden text-white focus:outline-none ml-4"
           aria-label="Abrir menu"
