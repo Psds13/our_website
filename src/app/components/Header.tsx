@@ -24,8 +24,13 @@ const Header = () => {
           <Link href="/#about" className="hover:text-gray-300">
             Sobre
           </Link>
-          {/* Link para rolar até a seção de cards na página /portfolios */}
-          <Link href="/portfolios#cards" className="hover:text-gray-300">
+          <Link href="/#servicos" className="hover:text-gray-300">
+            Serviços
+          </Link>
+          <Link href="/#processo" className="hover:text-gray-300">
+            Processos
+          </Link>
+          <Link href="/#portfolios" className="hover:text-gray-300">
             Portfólios
           </Link>
         </nav>
