@@ -1,0 +1,17 @@
+{
+    "name": "Ynnothivix",
+    "short_name": "Ynnothivix",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#facc15",
+    "orientation": "portrait",
+    "icons": [
+      {
+        "src": "/ynnothivix.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }
+  

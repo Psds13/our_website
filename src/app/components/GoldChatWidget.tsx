@@ -6,10 +6,15 @@ import { MessageCircle, X } from "lucide-react";
 export default function GoldChatWidget() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { from: "gold", text: "Olá! Eu sou o Gold, seu assistente virtual. Qual é o seu nome?" },
+    {
+      from: "gold",
+      text:
+        "Olá! Eu sou o Gold, seu assistente virtual.\nComo posso te ajudar hoje?\n1 - Atendimento\n2 - Pagamento",
+    },
   ]);
   const [input, setInput] = useState("");
   const [step, setStep] = useState(0);
+  const [fluxo, setFluxo] = useState<"atendimento" | "pagamento" | null>(null);
 
   const [userData, setUserData] = useState({
     nome: "",
@@ -31,44 +36,66 @@ export default function GoldChatWidget() {
     const userMessage = { from: "user", text: input };
     setMessages((prev) => [...prev, userMessage]);
 
+    const userInput = input.trim().toLowerCase();
     let goldResponse = "";
-    const nextStep = step + 1;
 
-    switch (step) {
-      case 0:
-        setUserData((prev) => ({ ...prev, nome: input }));
-        goldResponse = `Prazer, ${input}! Com quem você gostaria de falar?`;
-        break;
-      case 1:
-        setUserData((prev) => ({ ...prev, contato: input }));
-        goldResponse = "Entendi! E qual é o motivo do seu atendimento?";
-        break;
-      case 2:
-        setUserData((prev) => ({ ...prev, motivo: input }));
-        goldResponse = "Obrigada pelas informações! Podemos agendar um horário para você. Qual dia seria melhor: segunda, terça, quarta, quinta ou sexta?";
-        break;
-      case 3:
-        setUserData((prev) => ({ ...prev, semana: input }));
-        goldResponse = "Perfeito. E qual horário seria melhor pra você?";
-        break;
-      case 4:
-        const finalData = { ...userData, horario: input };
-        setUserData(finalData);
-        goldResponse = `Perfeito! Vou agendar para ${input}. A pessoa responsável irá te contactar em breve.`;
+    if (fluxo === null) {
+      if (userInput === "1") {
+        setFluxo("atendimento");
+        setStep(1);
+        goldResponse = "Perfeito! Qual é o seu nome?";
+      } else if (userInput === "2") {
+        setFluxo("pagamento");
+        setStep(1);
+        goldResponse = "Vamos falar sobre pagamentos. Qual dúvida você tem?";
+      } else {
+        goldResponse = "Por favor, escolha uma opção válida:\n1 - Atendimento\n2 - Pagamento";
+      }
+    } else if (fluxo === "atendimento") {
+      const nextStep = step + 1;
 
-        setTimeout(() => {
-          setMessages((prev) => [
-            ...prev,
-            {
-              from: "gold",
-              text: `🔎 *Resumo do atendimento:*\n- Nome: ${finalData.nome}\n- Contato: ${finalData.contato}\n- Motivo: ${finalData.motivo}\n- Dia da semana: ${finalData.semana}\n- Horário: ${finalData.horario}`,
-            },
-          ]);
-        }, 1000);
-        break;
-      default:
-        goldResponse = "Se precisar de mais alguma coisa, estou por aqui!";
-        break;
+      switch (step) {
+        case 1:
+          setUserData((prev) => ({ ...prev, nome: input }));
+          goldResponse = `Prazer, ${input}! Com quem você gostaria de falar?`;
+          break;
+        case 2:
+          setUserData((prev) => ({ ...prev, contato: input }));
+          goldResponse = "Entendi! E qual é o motivo do seu atendimento?";
+          break;
+        case 3:
+          setUserData((prev) => ({ ...prev, motivo: input }));
+          goldResponse =
+            "Obrigada pelas informações! Podemos agendar um horário para você. Qual dia seria melhor: segunda, terça, quarta, quinta ou sexta?";
+          break;
+        case 4:
+          setUserData((prev) => ({ ...prev, semana: input }));
+          goldResponse = "Perfeito. E qual horário seria melhor pra você?";
+          break;
+        case 5:
+          const finalData = { ...userData, horario: input };
+          setUserData(finalData);
+          goldResponse = `Perfeito! Vou agendar para ${input}. A pessoa responsável irá te contactar em breve.`;
+
+          setTimeout(() => {
+            setMessages((prev) => [
+              ...prev,
+              {
+                from: "gold",
+                text: `🔎 *Resumo do atendimento:*\n- Nome: ${finalData.nome}\n- Contato: ${finalData.contato}\n- Motivo: ${finalData.motivo}\n- Dia: ${finalData.semana}\n- Horário: ${finalData.horario}`,
+              },
+            ]);
+          }, 1000);
+          break;
+        default:
+          goldResponse = "Se precisar de mais alguma coisa, estou por aqui!";
+          break;
+      }
+
+      setStep(nextStep);
+    } else if (fluxo === "pagamento") {
+      // Aqui você pode colocar uma lógica mais complexa depois
+      goldResponse = "Nosso setor financeiro irá entrar em contato com você em breve. Mais alguma dúvida?";
     }
 
     setTimeout(() => {
@@ -76,7 +103,6 @@ export default function GoldChatWidget() {
     }, 500);
 
     setInput("");
-    setStep(nextStep);
   };
 
   return (
