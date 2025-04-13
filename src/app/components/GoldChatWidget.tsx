@@ -33,7 +33,6 @@ export default function GoldChatWidget() {
     const userInput = input.trim().toLowerCase();
     let goldResponse = "";
 
-    // INÍCIO
     if (fluxo === null) {
       if (userInput === "1") {
         setFluxo("atendimento");
@@ -46,7 +45,8 @@ export default function GoldChatWidget() {
         goldResponse =
           "Qual a forma de pagamento?\n1 - Cartão de crédito ou débito\n2 - Via PIX\n3 - Boleto Bancário";
       } else {
-        goldResponse = "Por favor, escolha uma opção válida:\n1 - Atendimento\n2 - Pagamento";
+        goldResponse =
+          "Por favor, escolha uma opção válida:\n1 - Atendimento\n2 - Pagamento";
       }
 
       setTimeout(() => {
@@ -57,28 +57,34 @@ export default function GoldChatWidget() {
       return;
     }
 
-    // FLUXO DE ATENDIMENTO
     if (fluxo === "atendimento") {
       const nextStep = step + 1;
 
       switch (step) {
         case 1:
-          if (["1", "2", "3", "4"].includes(userInput)) {
+          if (["1", "2", "3"].includes(userInput)) {
             const motivos = {
               "1": "Problemas com o site",
               "2": "Deseja melhorar a qualidade do site",
               "3": "Criar um novo site",
-              "4": "Outros serviços",
             };
-            setMotivoAtendimento(motivos[userInput as "1" | "2" | "3" | "4"]);
+            setMotivoAtendimento(motivos[userInput as "1" | "2" | "3"]);
             goldResponse =
               "Obrigado pelas informações! Podemos agendar um horário para você.\nQual dia seria melhor: segunda, terça, quarta, quinta ou sexta?";
-            setStep(nextStep);
+            setStep(nextStep); // step 2
+          } else if (userInput === "4") {
+            goldResponse = "Por favor, descreva com mais detalhes o serviço que você precisa:";
+            setStep(1.5); // aqui ativamos o passo intermediário
           } else {
             goldResponse = "Por favor, escolha uma opção válida de 1 a 4.";
           }
           break;
-
+        case 1.5:
+          setMotivoAtendimento(input);
+          goldResponse =
+            "Obrigado pelas informações! Podemos agendar um horário para você.\nQual dia seria melhor: segunda, terça, quarta, quinta ou sexta?";
+          setStep(2);
+          break;
         case 2:
           setUserData((prev) => ({ ...prev, semana: input }));
           goldResponse =
@@ -91,8 +97,8 @@ export default function GoldChatWidget() {
             userInput === "1"
               ? "8h às 12h"
               : userInput === "2"
-              ? "14h às 18h"
-              : input;
+                ? "14h às 18h"
+                : input;
 
           const finalData = {
             ...userData,
@@ -140,7 +146,6 @@ export default function GoldChatWidget() {
         default:
           goldResponse = "Se precisar de mais alguma coisa, estou por aqui!";
       }
-
     } else if (fluxo === "pagamento") {
       const formas = {
         "1": "Cartão de crédito ou débito",
@@ -217,11 +222,10 @@ export default function GoldChatWidget() {
             {messages.map((msg, i) => (
               <div key={i} className={msg.from === "user" ? "text-right" : "text-left"}>
                 <span
-                  className={`inline-block px-3 py-2 rounded-lg whitespace-pre-line ${
-                    msg.from === "user"
+                  className={`inline-block px-3 py-2 rounded-lg whitespace-pre-line ${msg.from === "user"
                       ? "bg-blue-100 text-gray-800"
                       : "bg-yellow-100 text-gray-800"
-                  }`}
+                    }`}
                 >
                   {msg.text}
                 </span>
