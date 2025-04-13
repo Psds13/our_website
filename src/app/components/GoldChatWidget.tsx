@@ -19,13 +19,27 @@ export default function GoldChatWidget() {
   const [userData, setUserData] = useState({ semana: "", horario: "" });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const clickAudio = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Carrega o som
+  useEffect(() => {
+    clickAudio.current = new Audio("https://freesound.org/data/previews/522/522205_11682553-lq.mp3");
+  }, []);
+
+  const playClickSound = () => {
+    if (clickAudio.current) {
+      clickAudio.current.currentTime = 0;
+      clickAudio.current.play().catch((err) => console.error("Erro ao reproduzir o som:", err));
+    }
+  };
+
   const handleSend = () => {
     if (input.trim() === "") return;
+    playClickSound();
 
     const userMessage = { from: "user", text: input };
     setMessages((prev) => [...prev, userMessage]);
@@ -71,10 +85,10 @@ export default function GoldChatWidget() {
             setMotivoAtendimento(motivos[userInput as "1" | "2" | "3"]);
             goldResponse =
               "Obrigado pelas informações! Podemos agendar um horário para você.\nQual dia seria melhor: segunda, terça, quarta, quinta ou sexta?";
-            setStep(nextStep); // step 2
+            setStep(nextStep);
           } else if (userInput === "4") {
             goldResponse = "Por favor, descreva com mais detalhes o serviço que você precisa:";
-            setStep(1.5); // aqui ativamos o passo intermediário
+            setStep(1.5);
           } else {
             goldResponse = "Por favor, escolha uma opção válida de 1 a 4.";
           }
@@ -197,12 +211,19 @@ export default function GoldChatWidget() {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
+      {/* Chat Hint incorporado */}
+      {!open && (
+        <div className="absolute bottom-16 right-0 bg-white text-black text-sm px-3 py-2 rounded shadow border border-gray-200 animate-bounce">
+          Fale comigo!
+        </div>
+      )}
+
       {!open ? (
         <button
           onClick={() => setOpen(true)}
           className="bg-yellow-500 text-white p-4 rounded-full shadow-lg hover:bg-yellow-600 transition"
         >
-          <MessageCircle />
+          <MessageCircle id="chat-button" className="fixed bottom-6 right-6 w-10 h-10 text-white bg-yellow-400 p-2 rounded-full shadow-lg cursor-pointer" />
         </button>
       ) : (
         <div className="bg-white w-80 h-96 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-yellow-300">
@@ -223,8 +244,8 @@ export default function GoldChatWidget() {
               <div key={i} className={msg.from === "user" ? "text-right" : "text-left"}>
                 <span
                   className={`inline-block px-3 py-2 rounded-lg whitespace-pre-line ${msg.from === "user"
-                      ? "bg-blue-100 text-gray-800"
-                      : "bg-yellow-100 text-gray-800"
+                    ? "bg-blue-100 text-gray-800"
+                    : "bg-yellow-100 text-gray-800"
                     }`}
                 >
                   {msg.text}
