@@ -1,6 +1,8 @@
+// app/layout.tsx
 import Footer from "@/app/components/Footer";
 import Header from "@/app/components/Header";
 import GoldChatWidget from "@/app/components/GoldChatWidget";
+import Libras from "@/app/components/Libras"; // Importa o componente Libras
 import "./globals.css";
 
 export const metadata = {
@@ -32,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main className="flex-1">{children}</main>
         <Footer />
         <GoldChatWidget />
+        <Libras /> {/* Adiciona o ícone de Libras em todas as páginas */}
       </body>
     </html>
   );

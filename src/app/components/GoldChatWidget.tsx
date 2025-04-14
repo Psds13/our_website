@@ -17,29 +17,16 @@ export default function GoldChatWidget() {
   const [fluxo, setFluxo] = useState<"atendimento" | "pagamento" | null>(null);
   const [motivoAtendimento, setMotivoAtendimento] = useState("");
   const [userData, setUserData] = useState({ semana: "", horario: "" });
+  const [formaPagamento, setFormaPagamento] = useState("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const clickAudio = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Carrega o som
-  useEffect(() => {
-    clickAudio.current = new Audio("https://freesound.org/data/previews/522/522205_11682553-lq.mp3");
-  }, []);
-
-  const playClickSound = () => {
-    if (clickAudio.current) {
-      clickAudio.current.currentTime = 0;
-      clickAudio.current.play().catch((err) => console.error("Erro ao reproduzir o som:", err));
-    }
-  };
-
   const handleSend = () => {
-    if (input.trim() === "") return;
-    playClickSound();
+    if (!input.trim()) return;
 
     const userMessage = { from: "user", text: input };
     setMessages((prev) => [...prev, userMessage]);
@@ -84,21 +71,38 @@ export default function GoldChatWidget() {
             };
             setMotivoAtendimento(motivos[userInput as "1" | "2" | "3"]);
             goldResponse =
-              "Obrigado pelas informações! Podemos agendar um horário para você.\nQual dia seria melhor: segunda, terça, quarta, quinta ou sexta?";
-            setStep(nextStep);
+              "Certo! Por favor, informe seu nome e de onde você é, separados por vírgula.\nEx: João, São Luís - MA";
+            setStep(1.7);
           } else if (userInput === "4") {
-            goldResponse = "Por favor, descreva com mais detalhes o serviço que você precisa:";
+            goldResponse =
+              "Por favor, descreva com mais detalhes o serviço que você precisa:";
             setStep(1.5);
           } else {
             goldResponse = "Por favor, escolha uma opção válida de 1 a 4.";
           }
           break;
+
         case 1.5:
           setMotivoAtendimento(input);
+          goldResponse =
+            "Certo! Por favor, informe seu nome e de onde você é, separados por vírgula.\nEx: João, São Luís - MA";
+          setStep(1.7);
+          break;
+
+        case 1.7:
+          const [nome, local] = input.split(",").map((s) => s.trim());
+
+          if (!nome || !local) {
+            goldResponse =
+              "Por favor, informe seu nome e de onde você é, separados por vírgula.\nEx: João, São Luís - MA";
+            break;
+          }
+
           goldResponse =
             "Obrigado pelas informações! Podemos agendar um horário para você.\nQual dia seria melhor: segunda, terça, quarta, quinta ou sexta?";
           setStep(2);
           break;
+
         case 2:
           setUserData((prev) => ({ ...prev, semana: input }));
           goldResponse =
@@ -111,8 +115,8 @@ export default function GoldChatWidget() {
             userInput === "1"
               ? "8h às 12h"
               : userInput === "2"
-                ? "14h às 18h"
-                : input;
+              ? "14h às 18h"
+              : input;
 
           const finalData = {
             ...userData,
@@ -121,7 +125,7 @@ export default function GoldChatWidget() {
 
           setUserData(finalData);
 
-          goldResponse = `Perfeito! Vou agendar para ${finalData.semana}, das ${horarioEscolhido}. A pessoa responsável irá te contactar em breve.`;
+          goldResponse = `Perfeito! Vou agendar para ${finalData.semana}, das ${finalData.horario}. A pessoa responsável irá te contactar em breve.`;
 
           setStep(nextStep);
 
@@ -140,25 +144,14 @@ export default function GoldChatWidget() {
                 { from: "gold", text: "Volte sempre 😊" },
               ]);
 
-              setTimeout(() => {
-                setFluxo(null);
-                setStep(0);
-                setMotivoAtendimento("");
-                setUserData({ semana: "", horario: "" });
-                setMessages([
-                  {
-                    from: "gold",
-                    text:
-                      "Olá! Eu sou o Gold, seu assistente virtual.\nComo posso te ajudar hoje?\n1 - Atendimento\n2 - Pagamento",
-                  },
-                ]);
-              }, 2000);
+              setTimeout(resetChat, 2000);
             }, 2000);
           }, 1000);
           break;
 
         default:
-          goldResponse = "Se precisar de mais alguma coisa, estou por aqui!";
+          goldResponse =
+            "Se precisar de mais alguma coisa, estou por aqui!";
       }
     } else if (fluxo === "pagamento") {
       const formas = {
@@ -167,37 +160,82 @@ export default function GoldChatWidget() {
         "3": "Boleto Bancário",
       };
 
-      const forma = formas[userInput as "1" | "2" | "3"];
-      if (forma) {
-        const confirmMessage = `Certo! Você escolheu: ${forma}.\nNosso setor financeiro entrará em contato com você em breve.`;
+      if (step === 1 && formas[userInput as "1" | "2" | "3"]) {
+        const forma = formas[userInput as "1" | "2" | "3"];
+        setFormaPagamento(forma);
 
         setTimeout(() => {
-          setMessages((prev) => [...prev, { from: "gold", text: confirmMessage }]);
+          setMessages((prev) => [
+            ...prev,
+            { from: "gold", text: `Certo! Você escolheu: ${forma}.` },
+          ]);
 
           setTimeout(() => {
-            setMessages((prev) => [...prev, { from: "gold", text: "Volte sempre 😊" }]);
+            setMessages((prev) => [
+              ...prev,
+              {
+                from: "gold",
+                text:
+                  "Antes de prosseguir, por favor informe seu nome, cidade e estado separados por vírgula.\nEx: Ana, São Paulo, SP",
+              },
+            ]);
+            setStep(2);
+          }, 500);
+        }, 500);
+
+        setInput("");
+        return;
+      }
+
+      if (step === 2) {
+        const [nome, cidade, estado] = input.split(",").map((s) => s.trim());
+
+        if (!nome || !cidade || !estado) {
+          setTimeout(() => {
+            setMessages((prev) => [
+              ...prev,
+              {
+                from: "gold",
+                text:
+                  "Por favor, informe corretamente os três dados: nome, cidade e estado separados por vírgula.\nEx: Ana, São Paulo, SP",
+              },
+            ]);
+          }, 500);
+          setInput("");
+          return;
+        }
+
+        const resumo = `📄 *Resumo do pagamento:*\n- Forma: ${formaPagamento}\n- Nome: ${nome}\n- Cidade: ${cidade}\n- Estado: ${estado}`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { from: "gold", text: resumo }]);
+
+
+          setTimeout(() => {
+            setMessages((prev) => [
+              ...prev,
+              {
+                from: "gold",
+                text:
+                  "Nosso setor financeiro entrará em contato com você em breve.",
+              },
+            ]);
 
             setTimeout(() => {
-              setFluxo(null);
-              setStep(0);
-              setMotivoAtendimento("");
-              setUserData({ semana: "", horario: "" });
-
-              setMessages([
-                {
-                  from: "gold",
-                  text:
-                    "Olá! Eu sou o Gold, seu assistente virtual.\nComo posso te ajudar hoje?\n1 - Atendimento\n2 - Pagamento",
-                },
+              setMessages((prev) => [
+                ...prev,
+                { from: "gold", text: "Volte sempre 😊" },
               ]);
+
+              setTimeout(resetChat, 2000);
             }, 2000);
-          }, 2000);
+          }, 1000);
         }, 500);
         setInput("");
         return;
-      } else {
-        goldResponse = "Por favor, escolha uma forma de pagamento válida (1, 2 ou 3).";
       }
+
+      goldResponse =
+        "Por favor, escolha uma forma de pagamento válida (1, 2 ou 3).";
     }
 
     if (goldResponse) {
@@ -209,12 +247,26 @@ export default function GoldChatWidget() {
     setInput("");
   };
 
+  const resetChat = () => {
+    setFluxo(null);
+    setStep(0);
+    setMotivoAtendimento("");
+    setUserData({ semana: "", horario: "" });
+    setFormaPagamento("");
+    setMessages([
+      {
+        from: "gold",
+        text:
+          "Olá! Eu sou o Gold, seu assistente virtual.\nComo posso te ajudar hoje?\n1 - Atendimento\n2 - Pagamento",
+      },
+    ]);
+  };
+
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      {/* Chat Hint incorporado */}
       {!open && (
         <div className="absolute bottom-16 right-0 bg-white text-black text-sm px-3 py-2 rounded shadow border border-gray-200 animate-bounce">
-          Fale comigo!
+          Dúvidas? Fale comigo! 👇
         </div>
       )}
 
@@ -223,50 +275,51 @@ export default function GoldChatWidget() {
           onClick={() => setOpen(true)}
           className="bg-yellow-500 text-white p-4 rounded-full shadow-lg hover:bg-yellow-600 transition"
         >
-          <MessageCircle id="chat-button" className="fixed bottom-6 right-6 w-10 h-10 text-white bg-yellow-400 p-2 rounded-full shadow-lg cursor-pointer" />
+          <MessageCircle className="w-6 h-6" />
         </button>
       ) : (
-        <div className="bg-white w-80 h-96 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-yellow-300">
-          <div className="bg-yellow-500 text-white flex items-center px-4 py-2 gap-3">
-            <img
-              src="/gold.jpg"
-              alt="Avatar do assistente Gold"
-              className="w-8 h-8 rounded-full object-cover border border-white"
-            />
-            <span className="font-semibold">Assistente Gold</span>
-            <button onClick={() => setOpen(false)} className="ml-auto">
+        <div className="w-80 h-96 bg-white rounded-lg shadow-lg flex flex-col overflow-hidden">
+          <div className="bg-yellow-500 text-white p-4 flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <img
+                src="/path/to/your/image.png" // Substitua pelo caminho correto da sua imagem
+                alt="Gold"
+                className="w-6 h-6 rounded-full"
+              />
+              <span>Gold - Assistente Virtual</span>
+            </div>
+            <button onClick={() => setOpen(false)}>
               <X />
             </button>
           </div>
 
-          <div className="flex-1 p-4 space-y-2 overflow-y-auto text-sm bg-white">
+          <div className="flex-1 p-4 overflow-y-auto space-y-2">
             {messages.map((msg, i) => (
-              <div key={i} className={msg.from === "user" ? "text-right" : "text-left"}>
-                <span
-                  className={`inline-block px-3 py-2 rounded-lg whitespace-pre-line ${msg.from === "user"
-                    ? "bg-blue-100 text-gray-800"
-                    : "bg-yellow-100 text-gray-800"
-                    }`}
-                >
-                  {msg.text}
-                </span>
+              <div
+                key={i}
+                className={`whitespace-pre-line p-2 rounded max-w-[80%] ${
+                  msg.from === "gold"
+                    ? "bg-gray-100 text-left"
+                    : "bg-yellow-200 self-end text-right"
+                }`}
+              >
+                {msg.text}
               </div>
             ))}
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="border-t p-2 flex gap-2 bg-white">
+          <div className="p-2 border-t flex">
             <input
               type="text"
+              className="flex-1 border px-2 py-1 rounded text-sm"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Escreva aqui..."
-              className="flex-1 border rounded px-3 py-2 text-sm text-black placeholder-gray-500"
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
             />
             <button
               onClick={handleSend}
-              className="bg-yellow-500 text-white px-4 rounded hover:bg-yellow-600 text-sm"
+              className="ml-2 bg-yellow-500 text-white px-4 py-1 rounded hover:bg-yellow-600 text-sm"
             >
               Enviar
             </button>
