@@ -282,7 +282,7 @@ export default function GoldChatWidget() {
           <div className="bg-yellow-500 text-white p-4 flex justify-between items-center">
             <div className="flex items-center space-x-2">
               <img
-                src="/path/to/your/image.png" // Substitua pelo caminho correto da sua imagem
+                src="/gold.jpg" // Substitua pelo caminho correto da sua imagem
                 alt="Gold"
                 className="w-6 h-6 rounded-full"
               />
