@@ -19,6 +19,11 @@ const ProcessoPage = () => {
       desc: "Depois do lançamento, seguimos com você oferecendo suporte técnico, melhorias e atualizações contínuas.",
       image: "https://cdn-icons-png.flaticon.com/512/9511/9511499.png", // ícone de suporte/entrega
     },
+    {
+      title: "4. Desenvolvimento",
+      desc: "Implementação do projeto com metodologias ágeis, entregas parciais e validações constantes para garantir qualidade.",
+      image: "https://cdn-icons-png.flaticon.com/512/1055/1055687.png", // ícone de desenvolvimento
+    },
   ];
 
   return (
