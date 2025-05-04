@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const Hero = () => {
   return (
     <section
@@ -21,12 +23,12 @@ const Hero = () => {
           >
             Nossos Serviços
           </a>
-          <a
-            href="#contact"
+          <Link
+            href="/contatos"
             className="border border-white px-6 py-3 rounded-full text-lg hover:bg-white hover:text-gray-900 transition"
           >
             Entre em Contato
-          </a>
+          </Link>
         </div>
       </div>
     </section>
