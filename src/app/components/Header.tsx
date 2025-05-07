@@ -33,6 +33,9 @@ const Header = () => {
           <Link href="/#portfolios" className="hover:text-gray-300">
             Portfólios
           </Link>
+          <Link href="/plans" className="hover:text-gray-300">
+            Nossos Planos
+          </Link>
         </nav>
 
         {/* Ícone de login */}
