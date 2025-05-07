@@ -1,7 +1,7 @@
 "use client";
 import { NextPage } from 'next';
 import Head from 'next/head';
-import { useState, useEffect } from 'react';
+import { useState} from 'react';
 import { FiCopy, FiCheck, FiLock, FiCreditCard, FiDollarSign } from 'react-icons/fi';
 import { FaBarcode } from 'react-icons/fa';
 
