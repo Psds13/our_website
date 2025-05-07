@@ -26,7 +26,7 @@ const PricingSection = () => {
     },
     premium: {
       name: "Premium",
-      price: annualBilling ? "R$490" : "R$49",
+      price: annualBilling ? "R$499,99" : "R$49,99",
       period: annualBilling ? "/ano" : "/mês",
       description: "Para usuários regulares e pequenas equipes que precisam de mais recursos.",
       features: [
@@ -42,7 +42,7 @@ const PricingSection = () => {
     },
     advanced: {
       name: "Avançado",
-      price: annualBilling ? "R$950" : "R$99",
+      price: annualBilling ? "R$949,99" : "R$99,99",
       period: annualBilling ? "/ano" : "/mês",
       description: "Para profissionais que exigem alto desempenho e recursos avançados.",
       features: [
