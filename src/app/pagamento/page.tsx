@@ -422,12 +422,12 @@ const PaymentPage: NextPage = () => {
                 <div className="flex flex-col items-center space-y-4">
                   <div className="flex items-center space-x-6">
                     <img 
-                      src="https://logodownload.org/wp-content/uploads/2015/05/visa-logo-1.png" 
+                      src="/visa.png" 
                       alt="Visa" 
                       className="h-8 opacity-80 hover:opacity-100 transition-opacity"
                     />
                     <img 
-                      src="https://logodownload.org/wp-content/uploads/2014/04/mastercard-logo-1-1.png" 
+                      src="/mastercard.png" 
                       alt="Mastercard" 
                       className="h-8 opacity-80 hover:opacity-100 transition-opacity"
                     />
